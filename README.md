@@ -1,2 +1,2 @@
-# a-star-js
-A* Pathfinding algorithm implemented in Javascript
+# JavaScript A* Pathfinding Algorithm
+A* Pathfinding algorithm implemented in JavaScript
