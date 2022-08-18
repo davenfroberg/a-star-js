@@ -1,15 +1,17 @@
-function Node(position, wall, target, xpos, ypos) {
-    this.gCost = 0;
-    this.hCost = 0;
-    this.open = false;
-    this.closed = false;
-    this.path = false;
-    this.parent = null;
-    this.position = position;
-    this.wall = wall;
-    this.target = target;
-    this.xpos = xpos;
-    this.ypos = ypos;
+class Node {
+    constructor(position, wall, target, xpos, ypos) {
+        this.gCost = 0;
+        this.hCost = 0;
+        this.open = false;
+        this.closed = false;
+        this.path = false;
+        this.parent = null;
+        this.position = position;
+        this.wall = wall;
+        this.target = target;
+        this.xpos = xpos;
+        this.ypos = ypos;
+    }
 }
 
 let dim = 30;
@@ -17,10 +19,10 @@ let targPos, startPos;
 let wallProbability = 30; // in percent
 let map = [];
 
-function createRow() {
+function createRow(column) {
     let row = [];
     for (let i = 0; i < dim; i++) {
-        row[i] = new Node();
+        row[i] = new Node((column * dim + i), false, false, i, column);
     }
     return row;
 }
@@ -37,7 +39,7 @@ function assignWalls() {
 
 function createMap() {
     for (let i = 0; i < dim; i++) {
-        map[i] = createRow();
+        map[i] = createRow(i);
     }
     assignWalls();
 }
