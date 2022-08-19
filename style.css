@@ -32,15 +32,47 @@
     cursor:pointer;
 }
 
-.menu-item {
+.unselected {
     margin: 10px;
     border: 2px solid black;
     padding: 4px;
     float:left;
 }
 
-.menu-item:hover {
+.unselected:hover {
     cursor:pointer;
+}
+
+.selected {
+    margin: 10px;
+    border: 2px solid black;
+    padding: 4px;
+    float:left;
+}
+
+.selected:hover {
+    cursor:pointer;
+}
+
+
+
+#target-button.selected {
+    background-color: rgb(198, 54, 54);
+    color: white;
+}
+
+#start-button.selected {
+    background-color: rgb(32, 99, 32);
+    color: white;
+}
+
+
+#target-button {
+    background-color: rgb(255, 214, 214);
+}
+
+#start-button {
+    background-color: rgb(214, 255, 214);
 }
 
 .grid {
