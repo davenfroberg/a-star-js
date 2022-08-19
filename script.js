@@ -18,6 +18,7 @@ class Node {
 let dim = 10;
 let targX, targY, startX, startY;
 let wallProbability = 30; // in percent
+let wallCount = 0;
 let map = [];
 
 function createRow(column) {
@@ -29,10 +30,12 @@ function createRow(column) {
 }
 
 function assignWalls() {
+    wallCount = 0;
     for (let i = 0; i < dim; i++) {
         for (let j = 0; j < dim; j++) {
             if (Math.floor(Math.random() * 100) < wallProbability) {
                 map[i][j].wall = true;
+                wallCount ++;
             }
         }
     }
@@ -54,14 +57,15 @@ function createMap() {
         map[i] = createRow(i);
     }
     assignWalls();
+    if (wallCount <= dim*dim - 2) {
+        let startPos = randomAssignTerminus('isStart');
+        let targPos = randomAssignTerminus('isTarget');
 
-    let startPos = randomAssignTerminus('isStart');
-    let targPos = randomAssignTerminus('isTarget');
-
-    startX = fromPosToX(startPos);
-    startY = fromPosToY(startPos);
-    targX = fromPosToX(targPos);
-    targY = fromPosToY(targPos);
+        startX = fromPosToX(startPos);
+        startY = fromPosToY(startPos);
+        targX = fromPosToX(targPos);
+        targY = fromPosToY(targPos);
+    }
 }
 
 function fromPosToX(pos) {
@@ -74,8 +78,12 @@ function fromPosToY(pos) {
 
 // -------------------- JavaScript for GUI -----------------------------------
 
-let slider = document.getElementById("slider");
-let output = document.getElementById("dimension");
+let dimSlider = document.getElementById("dim-slider");
+let dimText = document.getElementById("dimension");
+
+let wallSlider = document.getElementById('wall-slider');
+let wallText = document.getElementById('probability');
+
 let assigningStart = false;
 let assigningTarget = false;
 
@@ -104,6 +112,12 @@ function clickTarget(targetButton, startButton) {
         assigningTarget = false;
         targetButton.className = 'unselected';
     }
+}
+
+function generate() {
+    dim = dimSlider.value;
+    wallProbability = wallSlider.value;
+    regenerateMap();
 }
 
 function clickCell(el, r, c) {
@@ -147,15 +161,18 @@ function repaint() {
     document.body.appendChild(grid);
 }
 
-slider.oninput = function () {
-    dim = this.value;
-    output.innerHTML = dim + ' x ' + dim + ' grid';
-    regenerateMap();
+dimSlider.oninput = function () {
+    dimText.innerHTML = this.value + ' x ' + this.value + ' grid';
+}
+
+wallSlider.oninput = function () {
+    wallText.innerHTML = this.value + '% wall probability';
 }
 
 function handleButtons() {
     let startButton = document.getElementById('start-button');
     let targetButton = document.getElementById('target-button');
+    let generateButton = document.getElementById('generate');
 
     startButton.addEventListener('click', function() {
         clickStart(startButton, targetButton);
@@ -164,6 +181,8 @@ function handleButtons() {
     targetButton.addEventListener('click', function() {
         clickTarget(targetButton, startButton);
       });
+
+    generateButton.addEventListener('click', generate);
 }
 
 function createGrid(rows, cols, callback, regen) {
@@ -196,7 +215,8 @@ function createGrid(rows, cols, callback, regen) {
     return table;
 }
 
-handleButtons();
 
 let grid = createGrid(dim, dim, clickCell, true);
 document.body.appendChild(grid);
+
+handleButtons();

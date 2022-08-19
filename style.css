@@ -1,14 +1,41 @@
+* {
+    font-family: 'Montserrat', sans-serif;
+}
+
 #title {
-    font-family : 'Montserrat', sans-serif;
     font-weight: 200;
+    margin-bottom: 0px;
 }
 
 
-#dimension {
+.slider-text {
     margin-bottom: 0px;
-    font-family : 'Montserrat', sans-serif;
     font-weight : 600;
 }
+
+.slider-area {
+    float:left;
+    margin-right: 10px;
+    margin-top: 0px;
+}
+
+
+#generate {
+    margin-top: 10px;
+    margin-left:10px;
+    border: 2px solid black;
+    padding: 4px;
+    float:left;
+}
+
+#generate:hover {
+    cursor: pointer;
+}
+
+#buttons {
+    clear: both;
+}
+
 
 .grid td {
     width: 20px;
@@ -33,7 +60,8 @@
 }
 
 .unselected {
-    margin: 10px;
+    margin-left:0px;
+    margin-right: 25px;
     border: 2px solid black;
     padding: 4px;
     float:left;
@@ -44,7 +72,8 @@
 }
 
 .selected {
-    margin: 10px;
+    margin-left:0px;
+    margin-right: 25px;
     border: 2px solid black;
     padding: 4px;
     float:left;
@@ -76,8 +105,6 @@
 }
 
 .grid {
-    font-family : 'Montserrat', sans-serif;
-    font-weight : 300;
     border: 5px solid black;
     clear: both;
 }
