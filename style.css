@@ -1,0 +1,51 @@
+#title {
+    font-family : 'Montserrat', sans-serif;
+    font-weight: 200;
+}
+
+
+#dimension {
+    margin-bottom: 0px;
+    font-family : 'Montserrat', sans-serif;
+    font-weight : 600;
+}
+
+.grid td {
+    width: 20px;
+    height: 15px;
+    border: 1px solid rgb(0, 0, 0);
+}
+
+.wall {
+    background-color: rgb(62, 62, 62);
+}
+
+#target {
+    background-color: red;
+}
+
+#start {
+    background-color: green;
+}
+
+.grid td:hover {
+    cursor:pointer;
+}
+
+.menu-item {
+    margin: 10px;
+    border: 2px solid black;
+    padding: 4px;
+    float:left;
+}
+
+.menu-item:hover {
+    cursor:pointer;
+}
+
+.grid {
+    font-family : 'Montserrat', sans-serif;
+    font-weight : 300;
+    border: 5px solid black;
+    clear: both;
+}
