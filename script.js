@@ -42,7 +42,6 @@ function assignWalls() {
 }
 
 function randomAssignTerminus(terminus) {
-
     let randomX = 0;
     let randomY = 0;
     do {
@@ -80,7 +79,25 @@ function fromPosToY(pos) {
     return Math.floor(pos/dim);
 }
 
-// -------------------- JavaScript for GUI -----------------------------------
+function pathfind() {
+    const openList = [];
+    const closedList = [];
+    let openCounter = 1; //the start node is already in the open list
+    let closedCounter = 0;
+    let pathFound = false;
+    let current = map[0][0];
+}
+
+function init() {
+    
+}
+
+function lowestFCost() {
+
+}
+
+
+// ---------------------------- JavaScript for GUI -----------------------------------
 
 let dimSlider = document.getElementById("dim-slider");
 let dimText = document.getElementById("dimension");
@@ -177,6 +194,7 @@ function handleButtons() {
     let startButton = document.getElementById('start-button');
     let targetButton = document.getElementById('target-button');
     let generateButton = document.getElementById('generate');
+    let pathfindButton = document.getElementById('pathfind');
 
     startButton.addEventListener('click', function() {
         clickStart(startButton, targetButton);
@@ -187,6 +205,12 @@ function handleButtons() {
       });
 
     generateButton.addEventListener('click', generate);
+
+    pathfindButton.addEventListener('click', function() {
+        pathfind();
+    })
+
+
 }
 
 function createGrid(rows, cols, callback, regen) {

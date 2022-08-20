@@ -30,6 +30,20 @@
 
 #generate:hover {
     cursor: pointer;
+    background-color: rgb(229, 229, 229);
+}
+
+#pathfind {
+    margin-top: 10px;
+    margin-left:10px;
+    border: 2px solid black;
+    padding: 4px;
+    float:left;
+}
+
+#pathfind:hover {
+    cursor: pointer;
+    background-color: rgb(229, 229, 229);
 }
 
 #buttons {
