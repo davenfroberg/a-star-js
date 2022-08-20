@@ -42,12 +42,14 @@ function assignWalls() {
 }
 
 function randomAssignTerminus(terminus) {
+
     let randomX = 0;
     let randomY = 0;
     do {
         randomX = Math.floor(Math.random() * dim);
         randomY = Math.floor(Math.random() * dim);
-    } while (map[randomX][randomY].wall);
+    } while (map[randomX][randomY].wall && !map[randomX][randomY].isStart && !map[randomX][randomY].isTarget);
+
     map[randomX][randomY][terminus] = true;
     return (randomY * dim + randomX);
 }
@@ -56,7 +58,9 @@ function createMap() {
     for (let i = 0; i < dim; i++) {
         map[i] = createRow(i);
     }
+
     assignWalls();
+
     if (wallCount <= dim*dim - 2) {
         let startPos = randomAssignTerminus('isStart');
         let targPos = randomAssignTerminus('isTarget');
