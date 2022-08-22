@@ -83,18 +83,32 @@ function fromPosToY(pos) {
 function pathfind() {
     const openList = [];
     const closedList = [];
-    let openCounter = 1; //the start node is already in the open list
     let closedCounter = 0;
     let pathFound = false;
     let current = map[0][0];
+
+    openList.push(map[startX][startY]);
+    map[startX][startY].hCost = findHCost(map[startX][startY]);
+
+    while(openList.length != 0) {
+        current = openList[0];
+        closedList.push(openList.shift()); //takes first (aka most optimal) Node from open list
+        addNeighbours(current, openList, closedList);
+    }
+
+    repaint();
 }
 
-function init() {
-    
+function addNeighbours(current, openList, closedList) {
+    // add neighbours to openList in order of lowest F Cost
+    // if there's a tie for fCost, then order of lowest hCost
+    // if there's a tie for hCost, then order doesn't matter
 }
 
-function lowestFCost() {
+function findHCost(node) {
+    let hCost = 0;
 
+    return hCost;
 }
 
 
