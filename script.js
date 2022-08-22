@@ -1,11 +1,11 @@
 class Node {
     constructor(position, xpos, ypos) {
-        this.wall = false;
+        this.isWall = false;
         this.gCost = 0;
         this.hCost = 0;
-        this.open = false;
-        this.closed = false;
-        this.path = false;
+        this.isOpen = false;
+        this.isClosed = false;
+        this.isPath = false;
         this.parent = null;
         this.position = position;
         this.isTarget = false;
@@ -34,7 +34,7 @@ function assignWalls() {
     for (let i = 0; i < dim; i++) {
         for (let j = 0; j < dim; j++) {
             if (Math.floor(Math.random() * 100) < wallProbability) {
-                map[i][j].wall = true;
+                map[i][j].isWall = true;
                 wallCount ++;
             }
         }
@@ -44,10 +44,11 @@ function assignWalls() {
 function randomAssignTerminus(terminus) {
     let randomX = 0;
     let randomY = 0;
+    
     do {
         randomX = Math.floor(Math.random() * dim);
         randomY = Math.floor(Math.random() * dim);
-    } while (map[randomX][randomY].wall && !map[randomX][randomY].isStart && !map[randomX][randomY].isTarget);
+    } while (map[randomX][randomY].isWall || map[randomX][randomY].isStart || map[randomX][randomY].isTarget);
 
     map[randomX][randomY][terminus] = true;
     return (randomY * dim + randomX);
@@ -145,14 +146,14 @@ function clickCell(el, r, c) {
     const node = map[c][r];
     if (!node.isStart && !node.isTarget) {
         if (assigningStart) {
-            if (!node.wall) {
+            if (!node.isWall) {
                 node.isStart = true;
                 map[startX][startY].isStart = false;
                 startX = c;
                 startY = r;
             }
         } else if (assigningTarget) {
-            if (!node.wall) {
+            if (!node.isWall) {
                 node.isTarget = true;
                 map[targX][targY].isTarget = false;
                 targX = c;
@@ -160,10 +161,10 @@ function clickCell(el, r, c) {
             }
         } else {
             console.log('click!');
-            if (node.wall) {
-                node.wall = false;
+            if (node.isWall) {
+                node.isWall = false;
             } else {
-                node.wall = true;
+                node.isWall = true;
             }
         }
         repaint();
@@ -223,7 +224,7 @@ function createGrid(rows, cols, callback, regen) {
         let rowBox = table.appendChild(document.createElement('tr'));
         for (let col = 0; col < cols; col++) {
             let cell = rowBox.appendChild(document.createElement('td'));
-            if (map[col][row].wall)
+            if (map[col][row].isWall)
                 cell.className = 'wall';
 
             if (map[col][row].isStart)
@@ -231,6 +232,9 @@ function createGrid(rows, cols, callback, regen) {
 
             if (map[col][row].isTarget)
                 cell.id = 'target';
+
+            if (map[col][row].isPath)
+                cell.id = 'path';
 
 
             cell.addEventListener('click', (function (el, row, col) {
