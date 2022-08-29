@@ -29,7 +29,7 @@ const openList = [];
 function createRow(column) {
     let row = [];
     for (let i = 0; i < dim; i++) {
-        row[i] = new Node((column * dim + i), i, column);
+        row[i] = new Node((column * dim + i), column, i);
     }
     return row;
 }
@@ -39,7 +39,7 @@ function assignWalls() {
     for (let i = 0; i < dim; i++) {
         for (let j = 0; j < dim; j++) {
             if (Math.floor(Math.random() * 100) < wallProbability) {
-                map[i][j].isWall = true;
+                map[j][i].isWall = true;
                 wallCount ++;
             }
         }
@@ -78,7 +78,7 @@ function createMap() {
 }
 
 function fromPosToX(pos) {
-    return pos - Math.floor(pos/dim) * dim;
+    return (pos - (Math.floor(pos/dim) * dim));
 }
 
 function fromPosToY(pos) {
@@ -88,178 +88,171 @@ function fromPosToY(pos) {
 function pathfind() {
     const closedList = [];
     let pathFound = false;
-    let current = map[0][0];
+    let currentNode;
+    openList.push(map[startX][startY]);
 
-    openList.push(map[startY][startX]);
-    map[startX][startY].hCost = findHCost(map[startY][startX]);
+    while (openList.length != 0) {
+        console.log('MAIN LOOP');
+        console.log('CURRENT OPEN LENGTH: ' + openList.length);
+        currentNode = openList.shift();
+        assignHCost(currentNode);
+        currentNode.isOpen = false;
+        currentNode.isClosed = true;
+        closedList.push(currentNode);
 
-    while(openList.length != 0) {
-        current = openList.shift(); //first aka most optimal Node
-        closedList.push(current);
-        current.isClosed = true;
-        addNeighbours(current, openList, closedList);
-        console.log('loop 1');
+        if (currentNode === map[targX][targY]) {
+            console.log('PATH FOUND!');
+            console.log(map[targX][targY].parent.xPos);
+            console.log(map[targX][targY].parent.yPos);
+            pathFound = true;
+            break;
+        }
+        addNeighbours(currentNode);
+        console.log('CURRENT OPEN LENGTH: ' + openList.length);
     }
 
     if (!pathFound) {
-        console.log('There is no path found!');
-    } else {
-        setFinalPath(current);
-    }
+        console.log('NO PATH FOUND!');
+    } else 
+        createFinalPath();
 
     repaint();
 }
 
-function setFinalPath(node) {
-    let current = node;
-        while (current.xPos != startX && current.yPos != startY) {
-            current = current.parent;
-            current.setPath(true);
-            console.log('loop2');
-        }
+function createFinalPath() {
+    console.log('trying to set final path');
+    let current = map[targX][targY].parent;
+    while (current != map[startX][startY]) {
+        console.log('FINAL PATH LOOP');
+        //console.log('current.xPos: ' + current.xPos + ' current.yPos: ' + current.yPos);
+        current.isPath = true;
+        current = current.parent;
+
+        //console.log('parentXPOS; ' + current.xPos + ' parentYPOS: ' + current.yPos);
     }
 
-function addNeighbours(current, openList, closedList) {
-    // add neighbours to openList in order of lowest F Cost
-    // if there's a tie for fCost, then order of lowest hCost
-    // if there's a tie for hCost, then order doesn't matter
-    // assign parents too
+}
 
-    let xPos = current.xPos;
-    let yPos = current.yPos;
-    let added = 0;
-
+function addNeighbours(node) {
+    console.log('adding neighbours');
+    let neighbour;
     for (let y = -1; y < 2; y++) {
         for (let x = -1; x < 2; x++) {
+            console.log('NEIGHBOUR LOOP');
             if (x === 0 && y === 0)
                 continue;
-            if (xPos + x < 0 || xPos + x > dim - 1) 
+            if (node.xPos + x < 0 || node.xPos + x > (dim - 1))
                 continue;
-            if (yPos + y < 0 || yPos + y > dim - 1) 
+            if (node.yPos + y < 0 || node.yPos + y > (dim - 1))
                 continue;
-
-            let neighbour = map[yPos + y][xPos + x];
-            console.log('CALLING FUNCTION ON ' + neighbour.xPos + '/' + neighbour.yPos);
-            neighbour.hCost = findHCost(neighbour);
-
+            neighbour = map[node.xPos + x][node.yPos + y];
+            assignHCost(neighbour);
             let distance = 0;
-
-            if (x === 0 || y === 0) //moving exclusively horizontally or vertically
+            if (x === 0 || y === 0)
                 distance = 10;
             else
                 distance = 14;
 
             if (!neighbour.isWall && !neighbour.isClosed) {
-                    if (!neighbour.isOpen || !neighbour.gCost > current.gCost + distance) {
-                        neighbour.gCost = current.gCost + distance;
-                        neighbour.parent = current;
-                        if (!neighbour.isOpen) {
-                            neighbour.isOpen = true;
-                            addToOpenList(neighbour);
-                            added++;
-                        }
+                if (!neighbour.isOpen || neighbour.gCost > node.gCost + distance) {
+                    neighbour.gCost = node.gCost + distance;
+                    neighbour.parent = node;
+                    if (!neighbour.isOpen) {
+                        neighbour.isOpen = true;
+                        insertInOpen(neighbour);
                     }
+                }
             }
         }
     }
-
-    console.log('ADDED: ' + added);
-
 }
 
-function addToOpenList(node) {
-    const fCost = node.fCost;
-    for (i = 0; i < openList.length-1; i++) {
-        if (openList[i].fCost < fCost)
+function insertInOpen(node) {
+    if (openList.length === 0)
+        openList.push(node);
+    let fCost = node.fCost;
+    for (i in openList) {
+        if (fCost > openList[i].fCost)
             continue;
-        else if (openList[i].fCost > fCost) {
-            openList.splice(i, 0, node);
-            break;
-        }
-        else if (openList[i].fCost === fCost)
-            fancyInsert(i, node);
+        else if (fCost < openList[i].fCost)
+            openList.splice(i, 0, node); //simple insert
+        else if (fCost === openList[i].fCost)
+            fancyInsert(node, i);
     }
 }
 
-function fancyInsert(index, node) {
-    const hCost = node.hCost;
-    while (openList[index].hCost === hCost) {
-        if (openList[index].fCost >= fCost) {
-            openList.splice(index, 0, node);
+function fancyInsert(node, index) {
+    let hCost = node.hCost;
+    let fCost = node.fCost;
+    let counter = index;
+    while (openList[counter].fCost === fCost) {
+        console.log('FANCY LOOP');
+        if (hCost > openList[counter.hCost]) {
+            counter++;
+            continue;
+        } else {
+            openList.splice(counter, 0, node);
             break;
         }
-        index++;
-        console.log('loop3');
     }
 }
 
-function findHCost(node) {
-    let currentNode = node;
-    let nodeX = currentNode.xPos;
-    let nodeY = currentNode.yPos;
-
-    let hCost = 0;
+function assignHCost(node) {
     let left, right, up, down;
-
+    let hCost = 0;
+    let tempNode = node;
+    let nodeX = tempNode.xPos;
+    let nodeY = tempNode.yPos;
     while (nodeX != targX || nodeY != targY) {
-        console.log('TARGX: ' + targX);
-        console.log('TARGY: ' + targY);
-        console.log('NODE Y: ' + nodeY);
-        console.log('NODE X: ' + nodeX);
-        console.log('loop4');
+        console.log('HCOST LOOP');
+        nodeX = tempNode.xPos;
+        nodeY = tempNode.yPos;
         left = false;
         right = false;
         up = false;
         down = false;
-
         if (nodeX > targX)
             left = true;
         else if (nodeX < targX)
             right = true;
-
         if (nodeY > targY)
             up = true;
         else if (nodeY < targY)
             down = true;
+        let newX = nodeX;
+        let newY = nodeY;
 
-        if (up) 
-            if (left) {
-                currentNode = map[nodeY - 1][nodeX - 1];
-                hCost += 14;
-            } else if (right) {
-                currentNode = map[nodeY - 1][nodeX + 1];
-                hCost += 14;
-            } else {
-                currentNode = map[nodeY-1][nodeX];
-                hCost += 10;
-            }
-        else if (down)
-            if (left) {
-                currentNode = map[nodeY + 1][nodeX - 1];
-                hCost += 14;
-            } else if (right) {
-                currentNode = map[nodeY + 1][nodeX + 1];
-                hCost += 14;
-            } else {
-                currentNode = map[nodeY + 1][nodeX];
-                hCost += 10;
-            }
-
-        else if (right) {
-            currentNode = map[nodeY][nodeX + 1];
+        if (up) {
             hCost += 10;
+            newY -= 1;
+            if (left) {
+                hCost += 4;
+                newX -= 1;
+            } else if (right) {
+                hCost += 4;
+                newX += 1;
+            }
+        } else if (down) {
+            hCost += 10;
+            newY += 1;
+            if (left) {
+                hCost += 4;
+                newX -= 1;
+            } else if (right) {
+                hCost += 4;
+                newX += 1;
+            }
         } else if (left) {
-            currentNode = map[nodeY][nodeX - 1];
             hCost += 10;
+            newX -= 1;
+        } else if (right) {
+            hCost += 10;
+            newX += 1;
         }
-
-        console.log('HCOST: ' + hCost);
-        nodeY = currentNode.yPos;
-        nodeX = currentNode.xPos;
+        tempNode = map[newX][newY];
     }
-        return hCost;
+    node.hCost = hCost;
 }
-
 
 // ---------------------------- JavaScript for GUI -----------------------------------
 
@@ -306,24 +299,24 @@ function generate() {
 }
 
 function clickCell(el, r, c) {
+    console.log('click at column: ' + c + ' row: ' + r);
     const node = map[c][r];
     if (!node.isStart && !node.isTarget) {
         if (assigningStart) {
             if (!node.isWall) {
                 node.isStart = true;
-                map[startY][startX].isStart = false;
+                map[startX][startY].isStart = false;
                 startX = c;
                 startY = r;
             }
         } else if (assigningTarget) {
             if (!node.isWall) {
                 node.isTarget = true;
-                map[targY][targX].isTarget = false;
+                map[targX][targY].isTarget = false;
                 targX = c;
                 targY = r;
             }
         } else {
-            console.log('click!');
             if (node.isWall) {
                 node.isWall = false;
             } else {
@@ -387,17 +380,17 @@ function createGrid(rows, cols, callback, regen) {
         let rowBox = table.appendChild(document.createElement('tr'));
         for (let col = 0; col < cols; col++) {
             let cell = rowBox.appendChild(document.createElement('td'));
-            if (map[row][col].isWall)
+            if (map[col][row].isWall)
                 cell.className = 'wall';
 
-            if (map[row][col].isStart)
+            if (map[col][row].isStart)
                 cell.id = 'start';
 
-            if (map[row][col].isTarget)
+            if (map[col][row].isTarget)
                 cell.id = 'target';
 
-            if (map[row][col].isPath)
-                cell.id = 'path';
+            if (map[col][row].isPath)
+                cell.className = 'path';
 
 
             cell.addEventListener('click', (function (el, row, col) {
