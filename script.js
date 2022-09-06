@@ -87,29 +87,24 @@ function fromPosToY(pos) {
 
 function pathfind() {
     openList = [];
-    const closedList = [];
     let pathFound = false;
     let currentNode;
     openList.push(map[startX][startY]);
 
     while (openList.length != 0) {
-        console.log('MAIN LOOP');
-        console.log('CURRENT OPEN LENGTH: ' + openList.length);
         currentNode = openList.shift();
         assignHCost(currentNode);
-        currentNode.isOpen = false;
-        currentNode.isClosed = true;
-        closedList.push(currentNode);
 
         if (currentNode === map[targX][targY]) {
-            console.log('PATH FOUND!');
-            console.log(map[targX][targY].parent.xPos);
-            console.log(map[targX][targY].parent.yPos);
             pathFound = true;
             break;
         }
+
         addNeighbours(currentNode);
-        console.log('CURRENT OPEN LENGTH: ' + openList.length);
+        
+
+        currentNode.isOpen = false;
+        currentNode.isClosed = true;
     }
 
     if (!pathFound) {
@@ -118,28 +113,32 @@ function pathfind() {
         createFinalPath();
 
     repaint();
+
+}
+
+function countOpen() {
+    let openCounter = 0;
+    for (let i = 0; i < dim; i++) {
+        for (let j = 0; j < dim; j++) {
+            if (map[j][i].isOpen)
+                openCounter++;
+        }
+    }
 }
 
 function createFinalPath() {
-    console.log('trying to set final path');
     let current = map[targX][targY].parent;
     while (current != map[startX][startY]) {
-        console.log('FINAL PATH LOOP');
-        //console.log('current.xPos: ' + current.xPos + ' current.yPos: ' + current.yPos);
         current.isPath = true;
         current = current.parent;
-
-        //console.log('parentXPOS; ' + current.xPos + ' parentYPOS: ' + current.yPos);
     }
 
 }
 
 function addNeighbours(node) {
-    console.log('adding neighbours');
     let neighbour;
     for (let y = -1; y < 2; y++) {
         for (let x = -1; x < 2; x++) {
-            console.log('NEIGHBOUR LOOP');
             if (x === 0 && y === 0)
                 continue;
             if (node.xPos + x < 0 || node.xPos + x > (dim - 1))
@@ -156,7 +155,7 @@ function addNeighbours(node) {
                 distance = 14;
 
             if (!neighbour.isWall && !neighbour.isClosed) {
-                if (!neighbour.isOpen || neighbour.gCost > node.gCost + distance) {
+                if (!neighbour.isOpen || node.gCost + distance < neighbour.gCost) {
                     neighbour.gCost = node.gCost + distance;
                     neighbour.parent = node;
                     if (!neighbour.isOpen) {
@@ -165,43 +164,52 @@ function addNeighbours(node) {
                     }
                 }
             }
+            
+            
+            
         }
     }
 }
 
 function insertInOpen(node) {
-    if (openList.length === 0)
-        openList.push(node);
-    else {
         let fCost = node.fCost;
         for (i in openList) {
-            if (fCost > openList[i].fCost)
-                continue;
-            else if (fCost < openList[i].fCost) {
+            if (fCost < openList[i].fCost) {
                 openList.splice(i, 0, node); //simple insert
-                break;
+                return;
             }
             else if (fCost === openList[i].fCost) {
                 fancyInsert(node, i);
-                break;
+                return;
             }
         }
+        openList.push(node);
     }
-}
 
 function fancyInsert(node, index) {
     let hCost = node.hCost;
     let fCost = node.fCost;
     let counter = index;
     while (openList[counter].fCost === fCost) {
-        console.log('FANCY LOOP');
-        if (hCost > openList[counter.hCost]) {
+        if (hCost > openList[counter].hCost) 
             counter++;
-            continue;
-        } else {
+        else {
             openList.splice(counter, 0, node);
-            break;
+            return;
         }
+        if (counter >= openList.length) {  
+            openList.splice(counter, 0, node);
+            return;
+        }
+    }
+    
+    openList.splice(counter, 0, node);
+
+    
+}
+function displayArray(array) {
+    for (i in array) {
+        console.log(array[i]);
     }
 }
 
@@ -212,7 +220,6 @@ function assignHCost(node) {
     let nodeX = tempNode.xPos;
     let nodeY = tempNode.yPos;
     while (nodeX != targX || nodeY != targY) {
-        console.log('HCOST LOOP');
         nodeX = tempNode.xPos;
         nodeY = tempNode.yPos;
         left = false;
@@ -307,7 +314,6 @@ function generate() {
 }
 
 function clickCell(el, r, c) {
-    console.log('click at column: ' + c + ' row: ' + r);
     const node = map[c][r];
     if (!node.isStart && !node.isTarget) {
         if (assigningStart) {
@@ -383,7 +389,7 @@ function createGrid(rows, cols, callback, regen) {
         createMap();
 
     let table = document.createElement('table');
-    table.className = 'grid';
+    table.id = 'grid';
     for (let row = 0; row < rows; row++) {
         let rowBox = table.appendChild(document.createElement('tr'));
         for (let col = 0; col < cols; col++) {
@@ -408,6 +414,7 @@ function createGrid(rows, cols, callback, regen) {
             })(cell, row, col), false);
         }
     }
+
     return table;
 }
 
@@ -415,8 +422,3 @@ let grid = createGrid(dim, dim, clickCell, true);
 document.body.appendChild(grid);
 
 handleButtons();
-
-console.log(map[startX][startY].isStart);
-console.log('startX ' + startX + ' startY' + startY);
-console.log(map[targX][targY].isTarget);
-console.log('targX ' + targX + ' targY' + targY);

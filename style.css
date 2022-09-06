@@ -55,7 +55,7 @@
 }
 
 
-.grid td {
+#grid td {
     width: 20px;
     height: 15px;
     border: 1px solid rgb(0, 0, 0);
@@ -73,7 +73,7 @@
     background-color: green;
 }
 
-.grid td:hover {
+#grid td:hover {
     cursor:pointer;
 }
 
@@ -122,7 +122,15 @@
     background-color: rgb(214, 255, 214);
 }
 
-.grid {
+#grid {
     border: 5px solid black;
     clear: both;
+}
+
+.neighbour {
+    background-color: lightblue;
+}
+
+.closed {
+    background-color: aquamarine;
 }
