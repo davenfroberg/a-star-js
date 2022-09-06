@@ -3,4 +3,4 @@ A* Pathfinding algorithm implemented in JavaScript, HTML, and CSS. Originally im
 
 # Current look at the GUI:
 
-<img width="452" alt="gui" src="https://user-images.githubusercontent.com/96971299/185689789-f10c27b3-ee45-4693-9f16-c0c9ac00cd0a.png">
+<img width="557" alt="Screen Shot 2022-09-05 at 8 06 07 PM" src="https://user-images.githubusercontent.com/96971299/188538673-60af4f02-f37c-4979-9254-12da0c19399b.png">
