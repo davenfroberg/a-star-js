@@ -24,7 +24,7 @@ let targX, targY, startX, startY;
 let wallProbability = 30; // in percent
 let wallCount = 0;
 let map = [];
-const openList = [];
+let openList;
 
 function createRow(column) {
     let row = [];
@@ -86,6 +86,7 @@ function fromPosToY(pos) {
 }
 
 function pathfind() {
+    openList = [];
     const closedList = [];
     let pathFound = false;
     let currentNode;
@@ -145,6 +146,7 @@ function addNeighbours(node) {
                 continue;
             if (node.yPos + y < 0 || node.yPos + y > (dim - 1))
                 continue;
+            
             neighbour = map[node.xPos + x][node.yPos + y];
             assignHCost(neighbour);
             let distance = 0;
@@ -170,14 +172,20 @@ function addNeighbours(node) {
 function insertInOpen(node) {
     if (openList.length === 0)
         openList.push(node);
-    let fCost = node.fCost;
-    for (i in openList) {
-        if (fCost > openList[i].fCost)
-            continue;
-        else if (fCost < openList[i].fCost)
-            openList.splice(i, 0, node); //simple insert
-        else if (fCost === openList[i].fCost)
-            fancyInsert(node, i);
+    else {
+        let fCost = node.fCost;
+        for (i in openList) {
+            if (fCost > openList[i].fCost)
+                continue;
+            else if (fCost < openList[i].fCost) {
+                openList.splice(i, 0, node); //simple insert
+                break;
+            }
+            else if (fCost === openList[i].fCost) {
+                fancyInsert(node, i);
+                break;
+            }
+        }
     }
 }
 
