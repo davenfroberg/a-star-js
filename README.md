@@ -1,5 +1,5 @@
 # JavaScript A* Pathfinding Algorithm
-A* Pathfinding algorithm implemented in JavaScript, HTML, and CSS. Originally implemented in Java in 2020, but currently being refacotred into JavaScript as a personal project.
+A* Pathfinding algorithm implemented in JavaScript, HTML, and CSS. Originally implemented in Java in 2020, but was refactored into JavaScript as a personal project.
 
 # Current look at the GUI:
 
