@@ -400,15 +400,14 @@ function createGrid(rows, cols, callback, regen) {
             if (map[col][row].isStart)
                 cell.id = 'start';
 
-            //uncomment if want to see BTS of algorithm on GUI
-         /* if (map[col][row].isTarget)
-                cell.id = 'target';
-
+            /*  //uncomment if want to see BTS of algorithm on GUI
+            if (map[col][row].isOpen)
+                cell.className = 'neighbour';
             if (map[col][row].isClosed)
                 cell.className = 'closed'; */
             
-            if (map[col][row].isOpen)
-                cell.className = 'neighbour';
+            if (map[col][row].isTarget)
+                cell.id = 'target';
 
             if (map[col][row].isPath)
                 cell.className = 'path';
