@@ -25,6 +25,7 @@ let wallProbability = 30; // in percent
 let wallCount = 0;
 let map = [];
 let openList;
+let reset = false;
 
 function createRow(column) {
     let row = [];
@@ -85,35 +86,54 @@ function fromPosToY(pos) {
     return Math.floor(pos/dim);
 }
 
-function pathfind() {
+
+function resetNodes() {
+    for (let y = 0; y < dim; y++) {
+        for (let x = 0; x < dim; x++) {
+            let node = map[x][y]
+            node.isPath = false;
+            node.isOpen = false;
+            node.isClosed = false;
+            node.gCost = 0;
+            node.hCost = 0;
+            node.parent = null;
+        }
+    }
+    console.log('RESET!');
     openList = [];
-    let pathFound = false;
-    let currentNode;
-    openList.push(map[startX][startY]);
+    reset = false;
+}
 
-    while (openList.length != 0) {
-        currentNode = openList.shift();
-        assignHCost(currentNode);
+function pathfind() {
+    if (!reset) {
+        openList = [];
+        let pathFound = false;
+        let currentNode;
+        openList.push(map[startX][startY]);
 
-        if (currentNode === map[targX][targY]) {
-            pathFound = true;
-            break;
+        while (openList.length != 0) {
+            currentNode = openList.shift();
+            assignHCost(currentNode);
+
+            if (currentNode === map[targX][targY]) {
+                pathFound = true;
+                break;
+            }
+
+            addNeighbours(currentNode);
+            
+            currentNode.isOpen = false;
+            currentNode.isClosed = true;
         }
 
-        addNeighbours(currentNode);
-        
+        if (!pathFound) 
+            console.log('NO PATH FOUND!');
+        else 
+            createFinalPath();
 
-        currentNode.isOpen = false;
-        currentNode.isClosed = true;
+        repaint();
+        reset = true;
     }
-
-    if (!pathFound) {
-        console.log('NO PATH FOUND!');
-    } else 
-        createFinalPath();
-
-    repaint();
-
 }
 
 function countOpen() {
@@ -311,9 +331,13 @@ function generate() {
     dim = dimSlider.value;
     wallProbability = wallSlider.value;
     regenerateMap();
+    reset = false;
 }
 
 function clickCell(el, r, c) {
+    if (reset)
+        resetNodes();
+
     const node = map[c][r];
     if (!node.isStart && !node.isTarget) {
         if (assigningStart) {
@@ -347,6 +371,8 @@ function regenerateMap() {
     grid = createGrid(dim, dim, clickCell, true);
     document.body.appendChild(grid);
 }
+
+
 function repaint() {
     document.body.removeChild(grid);
     grid = createGrid(dim, dim, clickCell, false);
