@@ -19,9 +19,9 @@ class Node {
     }
 }
 
-let dim = 10;
+let dim = 10; // side length of square maze
 let targX, targY, startX, startY;
-let wallProbability = 30; // in percent
+let wallProbability = 30; // percentage of a particular cell being a wall
 let wallCount = 0;
 let map = [];
 let openList;
@@ -35,6 +35,7 @@ function createRow(column) {
     return row;
 }
 
+// Randomly determines if each Node in the map will be a wall or not
 function assignWalls() {
     wallCount = 0;
     for (let i = 0; i < dim; i++) {
@@ -47,6 +48,7 @@ function assignWalls() {
     }
 }
 
+// Randomly assigns the provided terminus (either start or target)
 function randomAssignTerminus(terminus) {
     let randomX = 0;
     let randomY = 0;
@@ -86,7 +88,9 @@ function fromPosToY(pos) {
     return Math.floor(pos/dim);
 }
 
-
+// Goes through entire map and resets it to pre-pathfinding state (but still with same walls)
+/* TODO: could I do this better? Time complexity would be strange but I don't necessarily need to go through the entire map each time,
+I could keep track of the Nodes that were actually modified and only reset those. Might save some time.*/
 function resetNodes() {
     for (let y = 0; y < dim; y++) {
         for (let x = 0; x < dim; x++) {
@@ -99,11 +103,11 @@ function resetNodes() {
             node.parent = null;
         }
     }
-    console.log('RESET!');
     openList = [];
     reset = false;
 }
 
+// Main pathfinding function
 function pathfind() {
     if (!reset) {
         openList = [];
@@ -127,34 +131,25 @@ function pathfind() {
         }
 
         if (!pathFound) 
-            console.log('NO PATH FOUND!');
+            alert("No Path Found!");
         else 
-            createFinalPath();
+            createFinalPath(map[targX][targY].parent);
 
         repaint();
         reset = true;
     }
 }
 
-function countOpen() {
-    let openCounter = 0;
-    for (let i = 0; i < dim; i++) {
-        for (let j = 0; j < dim; j++) {
-            if (map[j][i].isOpen)
-                openCounter++;
-        }
+// Recursively assigns "Path" status to Nodes by tracing path from target to start
+function createFinalPath(node) {
+    if (node != map[startX][startY]){
+        node.isPath = true;
+        createFinalPath(node.parent);
     }
 }
 
-function createFinalPath() {
-    let current = map[targX][targY].parent;
-    while (current != map[startX][startY]) {
-        current.isPath = true;
-        current = current.parent;
-    }
-
-}
-
+/* Adds all of a Nodes neighbours to the openList if they're not closed (already visited) and not a wall,
+ and reassigns distances to neighbours that now have a shorter path */
 function addNeighbours(node) {
     let neighbour;
     for (let y = -1; y < 2; y++) {
@@ -184,13 +179,11 @@ function addNeighbours(node) {
                     }
                 }
             }
-            
-            
-            
         }
     }
 }
 
+// Inserts Node in openList in order of increasing fCost
 function insertInOpen(node) {
         let fCost = node.fCost;
         for (i in openList) {
@@ -206,6 +199,7 @@ function insertInOpen(node) {
         openList.push(node);
     }
 
+// Inserts Node in subarray of Nodes in openList with same fCost in order of increasing hCost
 function fancyInsert(node, index) {
     let hCost = node.hCost;
     let fCost = node.fCost;
@@ -221,15 +215,7 @@ function fancyInsert(node, index) {
             openList.splice(counter, 0, node);
             return;
         }
-    }
-    
-    openList.splice(counter, 0, node);
-
-    
-}
-function displayArray(array) {
-    for (i in array) {
-        console.log(array[i]);
+    openList.splice(counter, 0, node); 
     }
 }
 
@@ -289,7 +275,7 @@ function assignHCost(node) {
     node.hCost = hCost;
 }
 
-// ---------------------------- JavaScript for GUI -----------------------------------
+// ---------------------------- GUI -----------------------------------
 
 let dimSlider = document.getElementById("dim-slider");
 let dimText = document.getElementById("dimension");
@@ -365,13 +351,11 @@ function clickCell(el, r, c) {
     }
 }
 
-
 function regenerateMap() {
     document.body.removeChild(grid);
     grid = createGrid(dim, dim, clickCell, true);
     document.body.appendChild(grid);
 }
-
 
 function repaint() {
     document.body.removeChild(grid);
@@ -406,8 +390,6 @@ function handleButtons() {
     pathfindButton.addEventListener('click', function() {
         pathfind();
     })
-
-
 }
 
 function createGrid(rows, cols, callback, regen) {
@@ -426,18 +408,18 @@ function createGrid(rows, cols, callback, regen) {
             if (map[col][row].isStart)
                 cell.id = 'start';
 
-            /*  //uncomment if want to see BTS of algorithm on GUI
+            //uncomment following if want to see BTS of algorithm on GUI:
+            /*
             if (map[col][row].isOpen)
                 cell.className = 'neighbour';
             if (map[col][row].isClosed)
-                cell.className = 'closed'; */
-            
+                cell.className = 'closed'; 
+            */
             if (map[col][row].isTarget)
                 cell.id = 'target';
 
             if (map[col][row].isPath)
                 cell.className = 'path';
-
 
             cell.addEventListener('click', (function (el, row, col) {
                 return function () {
